@@ -27,7 +27,7 @@ int main(){
 git clone https://github.com/masrul/GMXTraj
 ```
 + Build library 
-```
+```bash 
 cd GMXTraj 
 mkdir build  && cd build
 cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install 
@@ -37,6 +37,6 @@ make install
 
 + Install path contains header files, add **gmx_traj.hpp** into your *cpp* file 
 
-+ Best way to link library using  **CMakeLists.txt** contains in example folder. Edit 
++ Best way to link library using  **CMakeLists.txt** located at example folder. Edit 
 according to your needs 
 
