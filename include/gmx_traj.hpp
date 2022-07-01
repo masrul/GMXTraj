@@ -75,10 +75,9 @@ public:
     ~GMXTraj();
 
     // Followings should be called by users 
-    void set_iteration();
+    bool next();  // get next frame 
     void create_residue_tracker();
     void create_molecule_tracker(std::vector<MoleculeSummary>);
-    bool next();
     void make_whole(std::string); // fix borken residue or molecules; 
 
 private:

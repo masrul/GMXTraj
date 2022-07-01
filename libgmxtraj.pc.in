@@ -2,7 +2,7 @@ libdir=@CMAKE_INSTALL_PREFIX@/lib
 includedir=@CMAKE_INSTALL_PREFIX@/include
 
 Name: @PROJECT_NAME@
-Description: Wrapper of xdrfile for c++ with OPP style
+Description: Wrapper of xdrfile for c++ with OOP style
 Version: 0.1
 
 Requires:
