@@ -1,0 +1,10 @@
+libdir=@CMAKE_INSTALL_PREFIX@/lib 
+includedir=@CMAKE_INSTALL_PREFIX@/include
+
+Name: @PROJECT_NAME@
+Description: Wrapper of xdrfile for c++ with OPP style
+Version: 0.1
+
+Requires:
+Libs: -std=c++11 -L${libdir} -lgmxtraj -Wl,-rpath,${libdir}
+Cflags: -std=c++11 -I${includedir}
