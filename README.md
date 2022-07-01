@@ -1,6 +1,6 @@
 # GMXTraj
 
-**GMXTraj** is a C++ library that wraps *xdrfile* with object oriented fahsioni. GMXTraj can be used 
+**GMXTraj** is a C++ library that wraps *xdrfile* with object oriented fahsion. GMXTraj can be used 
 mainly for analysis purpose. 
 
 ```cpp
