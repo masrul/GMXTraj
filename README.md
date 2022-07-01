@@ -12,7 +12,6 @@ int main(){
     traj = GMXTraj(top_file,traj_file); 
 
     // Iterate trajectory
-
     while (traj.next()){
         // do staff 
         // traj.pos to access position 
@@ -20,3 +19,24 @@ int main(){
     return 0;
 }
 ```
+
+## How to use 
+
++ Clone directory 
+```bash 
+git clone https://github.com/masrul/GMXTraj
+```
++ Build library 
+```
+cd GMXTraj 
+mkdir build  && cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install 
+make 
+make install 
+```
+
++ Install path contains header files, add **gmx_traj.hpp** into your *cpp* file 
+
++ Best way to link library using  **CMakeLists.txt** contains in example folder. Edit 
+according to your needs 
+
