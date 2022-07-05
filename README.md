@@ -10,7 +10,7 @@ mainly for analysis purpose.
 int main(){
     std::string top_file; // gro file 
     std::string traj_file; // xtc, trr file 
-    traj = GMXTraj(top_file,traj_file); GMXTraj(gro_file) also vaild 
+    traj = GMXTraj(top_file,traj_file); // GMXTraj(gro_file) also vaild 
 
     // Iterate trajectory
     while (traj.next()){
