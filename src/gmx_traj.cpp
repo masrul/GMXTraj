@@ -92,7 +92,6 @@ void GMXTraj::_init_top(std::string top_file){
 }
 
 void GMXTraj::_init_gro(std::string gro_file){
-    std::cout << "Iniitiated gro\n";
     gro_handler.open(gro_file);
     pos = (rvec*)malloc(natoms*3*sizeof(float));
 
@@ -169,7 +168,10 @@ int GMXTraj::_read_next_gro(){
     size_t pos1 = line.find("t=");
     size_t pos2 = line.find("step=");
     std::string target1 = line.substr(pos1 + 2, pos2 - pos1 - 2);
-    time = stof(target1);
+    if (pos1 ==std::string::npos || pos2 ==std::string::npos)
+        time = 0.0;
+    else 
+        time = stof(target1);
     step = 0 ; // need to implement 
 
     getline(gro_handler, line);
@@ -227,10 +229,10 @@ void GMXTraj::create_molecule_tracker(std::vector<MoleculeSummary> molecule_summ
         }
     }
     assert(_natoms==natoms && "Number of atoms mismatch between topology and molecule summary");
+    nmolecules = molecule_trackers.size();
 }
 
 GMXTraj::~GMXTraj(){
-    std::cout << "Deleting" <<"\n";
 
     if (pos != nullptr)
         delete [] pos;

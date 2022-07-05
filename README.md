@@ -10,12 +10,12 @@ mainly for analysis purpose.
 int main(){
     std::string top_file; // gro file 
     std::string traj_file; // xtc, trr file 
-    traj = GMXTraj(top_file,traj_file); // GMXTraj(gro_file) also vaild 
+    GMXTraj traj{top_file,traj_file}; // traj{gro_file} also vaild 
 
     // Iterate trajectory
     while (traj.next()){
         // do staff 
-        // traj.pos to access position 
+        // traj.pos to access position e.g. traj.pos[5][0] for x of 6th atom 
         // traj.box to access box matrix
         // traj.lx, traj.ly, traj.lz can be used for orthagonal box lengths
     }
