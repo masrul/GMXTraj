@@ -37,6 +37,7 @@ struct MoleculeSummary{
     std::string name;
     int natoms; 
     int nitems;
+    MoleculeSummary(){};
     MoleculeSummary(std::string,int,int);
 };
 MoleculeSummary::MoleculeSummary(std::string _name,int _natoms,int _nitems){
@@ -68,8 +69,8 @@ public:
     std::vector<Tracker> molecule_trackers;
     
     // Constructors 
-    GMXTraj(std::string,std::string);
-    GMXTraj(std::string);
+    GMXTraj(std::string traj_file,std::string top_file);
+
 
     // Destructors
     ~GMXTraj();
@@ -77,7 +78,7 @@ public:
     // Followings should be called by users 
     bool next();  // get next frame 
     void create_residue_tracker();
-    void create_molecule_tracker(std::vector<MoleculeSummary>);
+    void create_molecule_tracker(std::string);
     void make_whole(std::string); // fix borken residue or molecules; 
 
 private:
@@ -95,6 +96,8 @@ private:
     int _read_next_gro();
     void _make_whole_residue();
     void _make_whole_molecule();
+    void _molecule_tracker_from_residue();
+    void _molecule_tracker_from_file(std::string);
 };
 
 

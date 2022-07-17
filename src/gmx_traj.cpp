@@ -1,4 +1,5 @@
 #include "gmx_traj.hpp"
+#include <algorithm>
 
 static bool check_file_extension(std::string file_name,std::string ext) {
     size_t i = file_name.rfind('.', file_name.length());
@@ -13,40 +14,53 @@ static bool check_file_extension(std::string file_name,std::string ext) {
         return false;
 }
 
-
-GMXTraj::GMXTraj(std::string gro_file){
-    if (check_file_extension(gro_file,"gro")){
-        traj_file_extension = "gro";
-        _init_top(gro_file);
-        _init_gro(gro_file);
-    }
-    else {
-        std::cout << "Trajectory extension must be .gro\n";
-        std::terminate();
-    }
+static std::string trim(std::string s) {
+    // Remove white space from string 
+    
+    std::string s1=s;   
+    s1.erase(s1.begin(), std::find_if_not(s1.begin(), s1.end(), [](char c){ return std::isspace(c); }));
+    s1.erase(std::find_if_not(s1.rbegin(), s1.rend(), [](char c){ return std::isspace(c); }).base(), s1.end());
+    return s1;
 }
 
 
-GMXTraj::GMXTraj(std::string traj_file,std::string top_file){
+GMXTraj::GMXTraj(std::string traj_file,std::string top_file=""){
 
-    if (check_file_extension(top_file,"gro"))
-        _init_top(top_file);
-    else {
-        std::cout << "Topology extension must be .gro\n";
-        std::terminate();
+    // gro as trajectory file and  top_file  is not required
+    if (top_file == ""){
+        if (check_file_extension(traj_file,"gro")){
+            traj_file_extension = "gro";
+            _init_top(traj_file);
+            _init_gro(traj_file);
+        }
+        else {
+            std::cout << "Trajectory extension must be .gro\n";
+            std::terminate();
+        }
     }
 
-    if (check_file_extension(traj_file,"xtc")){
-        traj_file_extension = "xtc";
-        _init_xtc(traj_file);
-    }
-    else if (check_file_extension(traj_file,"trr")){
-        traj_file_extension = "trr";
-        _init_trr(traj_file);
-    }
+    // XTC/TRR as traj_file, and top_file is required 
     else {
-        std::cout << "Trajectory  extension must be .xtc or .trr\n";
-        std::terminate();
+
+        if (check_file_extension(top_file,"gro"))
+            _init_top(top_file);
+        else {
+            std::cout << "Topology extension must be .gro\n";
+            std::terminate();
+        }
+
+        if (check_file_extension(traj_file,"xtc")){
+            traj_file_extension = "xtc";
+            _init_xtc(traj_file);
+        }
+        else if (check_file_extension(traj_file,"trr")){
+            traj_file_extension = "trr";
+            _init_trr(traj_file);
+        }
+        else {
+            std::cout << "Trajectory  extension must be .xtc or .trr\n";
+            std::terminate();
+        }
     }
 }
 
@@ -84,8 +98,8 @@ void GMXTraj::_init_top(std::string top_file){
     natoms = stoi(line);
     for (int i = 0; i < this->natoms; ++i) {
         getline(gro_handler, line);
-        resnames.push_back(line.substr(5,5));
-        symbols.push_back(line.substr(10,5));
+        resnames.push_back(trim(line.substr(5,5)));
+        symbols.push_back(trim(line.substr(10,5)));
         resids.push_back(std::stoi(line.substr(0,5)));
     }
     gro_handler.close();
@@ -191,6 +205,7 @@ int GMXTraj::_read_next_gro(){
 }
 
 void GMXTraj::create_residue_tracker(){
+    residue_trackers.clear();
 
     for (int i=0; i< natoms; ++i){
         int resid = resids[i];
@@ -215,7 +230,67 @@ void GMXTraj::create_residue_tracker(){
     }
 }
 
-void GMXTraj::create_molecule_tracker(std::vector<MoleculeSummary> molecule_summarys){
+
+
+
+void GMXTraj::create_molecule_tracker(std::string sysinfo_file=""){
+    if (sysinfo_file == "")
+        _molecule_tracker_from_residue();
+    else 
+        _molecule_tracker_from_file(sysinfo_file);
+}
+
+
+void GMXTraj::_molecule_tracker_from_residue(){
+    // Works if each molecule has exactly one residue 
+    molecule_trackers.clear();
+
+    for (int i=0; i< natoms; ++i){
+        int molid = resids[i];
+        std::string molname = resnames[i];
+
+        int mIDx = molecule_trackers.size()-1;
+
+        if (molecule_trackers.size() == 0){
+            Tracker molecule_tracker(molid,molname,1,i);
+            molecule_trackers.push_back(molecule_tracker);
+        }
+        else if 
+            ((molecule_trackers[mIDx].id == molid) & 
+            (molecule_trackers[mIDx].name == molname)){
+            
+            molecule_trackers[mIDx].natoms +=1;
+        }
+        else {
+            Tracker molecule_tracker(molid,molname,1,i);
+            molecule_trackers.push_back(molecule_tracker);
+        }
+    }
+    nmolecules = molecule_trackers.size();
+}
+
+void GMXTraj::_molecule_tracker_from_file(std::string sysinfo_file){
+    molecule_trackers.clear();
+    std::ifstream file; 
+    file.open(sysinfo_file);
+    if (!file) {
+        std::cout << sysinfo_file << " doesn't exist\n";
+        std::terminate();
+    }
+
+    std::string line;
+    std::vector<MoleculeSummary> molecule_summarys;
+
+    while(getline(file,line)){
+        if (line !=""){
+            std::istringstream input(line);
+            MoleculeSummary summary; 
+            input >> summary.name >> summary.natoms >> summary.nitems;
+            molecule_summarys.push_back(summary);
+        }
+    }
+    file.close();
+
     int id =1; 
     int sIDx = 0;
     int _natoms = 0;
@@ -231,6 +306,7 @@ void GMXTraj::create_molecule_tracker(std::vector<MoleculeSummary> molecule_summ
     assert(_natoms==natoms && "Number of atoms mismatch between topology and molecule summary");
     nmolecules = molecule_trackers.size();
 }
+
 
 GMXTraj::~GMXTraj(){
 
