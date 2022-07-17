@@ -9,8 +9,8 @@ mainly for analysis purpose.
 
 int main(){
     std::string top_file; // gro file 
-    std::string traj_file; // xtc, trr file 
-    GMXTraj traj{top_file,traj_file}; // traj{gro_file} also vaild 
+    std::string traj_file; // gro,xtc, trr file 
+    GMXTraj traj{traj_file,top_file}; // traj{traj_file} also vaild for gro  
 
     // Iterate trajectory
     while (traj.next()){
